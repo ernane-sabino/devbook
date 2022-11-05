@@ -1,12 +1,35 @@
 package controllers
 
 import (
+	"api/src/database"
+	"api/src/models"
+	"api/src/repositories"
+	"encoding/json"
+	"io/ioutil"
+	"log"
 	"net/http"
 )
 
 // CriarUsuarios insere um usuário no banco de dados
 func CriarUsuario(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Criando usuário!"))
+	corpoRequest, erro := ioutil.ReadAll(r.Body)
+	if erro != nil {
+		log.Fatal(erro)
+	}
+
+	var usuario models.Usuario
+	if erro = json.Unmarshal(corpoRequest, &usuario); erro != nil {
+		log.Fatal(erro)
+	}
+
+	db, erro := database.Conectar()
+	if erro != nil {
+		log.Fatal(erro)
+	}
+
+	repositorio := repositories.NovoRepositorioUsuarios(db)
+	repositorio.Criar(usuario)
+
 }
 
 // BuscarUsuarios busca todos os usuários salvos no banco de dados
